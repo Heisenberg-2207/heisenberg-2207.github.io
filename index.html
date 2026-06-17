@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aniket Khan — Research Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg-card: #111118;
+    --bg-hover: #16161f;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.14);
+    --text: #e8e8f0;
+    --muted: #7a7a8e;
+    --dim: #4a4a5a;
+    --accent: #7c6ef7;
+    --accent-soft: rgba(124,110,247,0.12);
+    --accent2: #4ecdc4;
+    --accent2-soft: rgba(78,205,196,0.1);
+    --green: #56cf87;
+    --green-soft: rgba(86,207,135,0.1);
+    --amber: #f0a500;
+    --amber-soft: rgba(240,165,0,0.1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    font-size:15px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .container{max-width:900px;margin:0 auto;padding:0 24px;}
+
+  /* Nav */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    background:rgba(10,10,15,0.85);
+    backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-inner{
+    max-width:900px;margin:0 auto;padding:0 24px;
+    display:flex;align-items:center;justify-content:space-between;
+    height:56px;
+  }
+  .nav-name{font-size:14px;font-weight:500;letter-spacing:0.02em;color:var(--text);text-decoration:none;}
+  .nav-links{display:flex;gap:28px;}
+  .nav-links a{font-size:13px;color:var(--muted);text-decoration:none;transition:color 0.18s;}
+  .nav-links a:hover{color:var(--text);}
+
+  /* Hero */
+  .hero{padding:140px 0 80px;border-bottom:1px solid var(--border);}
+  .hero-label{font-size:12px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:20px;}
+  .hero-name{
+    font-size:clamp(38px,5vw,58px);font-weight:300;letter-spacing:-0.02em;
+    line-height:1.1;color:var(--text);margin-bottom:12px;
+  }
+  .hero-name span{color:var(--accent);}
+  .hero-title{font-size:16px;color:var(--muted);margin-bottom:28px;font-weight:400;}
+  .hero-bio{max-width:580px;font-size:15px;color:var(--muted);line-height:1.75;margin-bottom:36px;}
+  .hero-pills{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:36px;}
+  .pill{
+    font-size:12px;font-weight:500;letter-spacing:0.04em;padding:5px 12px;border-radius:20px;
+    border:1px solid var(--border);color:var(--muted);background:var(--bg-card);
+    cursor:default;transition:border-color 0.18s,color 0.18s;
+  }
+  .pill:hover{border-color:var(--border-hover);color:var(--text);}
+  .hero-links{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .hero-link{
+    display:inline-flex;align-items:center;gap:7px;
+    font-size:13px;font-weight:500;color:var(--text);text-decoration:none;
+    padding:9px 18px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);
+    transition:background 0.18s,border-color 0.18s;
+  }
+  .hero-link:hover{background:var(--bg-hover);border-color:var(--border-hover);}
+  .hero-link.primary{background:var(--accent-soft);border-color:rgba(124,110,247,0.3);color:var(--accent);}
+  .hero-link.primary:hover{background:rgba(124,110,247,0.2);}
+  /* scaffold — visually dimmed, non-interactive until URL is filled in */
+  .hero-link.scaffold{opacity:0.38;cursor:not-allowed;pointer-events:none;border-style:dashed;}
+  .scaffold-tag{
+    font-size:11px;color:var(--dim);
+    padding:3px 9px;border-radius:5px;
+    border:1px dashed rgba(255,255,255,0.07);
+    background:transparent;white-space:nowrap;
+  }
+  .hero-link svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+  /* Sections */
+  section{padding:72px 0;}
+  .section-header{margin-bottom:40px;}
+  .section-eyebrow{font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+  .section-title{font-size:22px;font-weight:500;letter-spacing:-0.01em;color:var(--text);}
+
+  /* Publication cards */
+  .pub-card{
+    padding:24px 28px;background:var(--bg-card);border:1px solid var(--border);
+    border-radius:12px;margin-bottom:16px;
+    transition:border-color 0.2s,background 0.2s;
+    position:relative;overflow:hidden;
+  }
+  .pub-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);opacity:0;transition:opacity 0.2s;}
+  .pub-card:hover{border-color:var(--border-hover);background:var(--bg-hover);}
+  .pub-card:hover::before{opacity:1;}
+  .pub-meta{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+  .venue-badge{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:3px 10px;border-radius:4px;}
+  .venue-badge.accepted{background:var(--green-soft);color:var(--green);border:1px solid rgba(86,207,135,0.2);}
+  .venue-badge.poster{background:var(--accent2-soft);color:var(--accent2);border:1px solid rgba(78,205,196,0.2);}
+  .pub-venue{font-size:12px;color:var(--muted);}
+  .pub-title{font-size:16px;font-weight:500;color:var(--text);margin-bottom:8px;line-height:1.4;}
+  .pub-authors{font-size:13px;color:var(--dim);}
+  .pub-authors strong{color:var(--muted);}
+  .pub-links{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center;}
+  .pub-link{
+    display:inline-flex;align-items:center;gap:5px;
+    font-size:12px;font-weight:500;
+    padding:4px 12px;border-radius:5px;border:1px solid var(--border);
+    color:var(--muted);text-decoration:none;background:transparent;
+    transition:color 0.16s,border-color 0.16s;
+  }
+  .pub-link:hover{color:var(--text);border-color:var(--border-hover);}
+  .pub-link svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  /* scaffold pub links */
+  .pub-link.scaffold{opacity:0.35;cursor:not-allowed;pointer-events:none;border-style:dashed;}
+  .pub-link-note{font-size:11px;color:var(--dim);padding:3px 0;}
+
+  /* Project grid */
+  .projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+  .proj-card{
+    background:var(--bg-card);border:1px solid var(--border);border-radius:12px;
+    padding:22px 24px;text-decoration:none;display:block;
+    transition:border-color 0.18s,background 0.18s,transform 0.18s;
+    position:relative;
+  }
+  .proj-card:hover{border-color:var(--border-hover);background:var(--bg-hover);transform:translateY(-2px);}
+  .proj-card[style*="cursor:default"]:hover{transform:none;}
+  .proj-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:14px;}
+  .proj-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;}
+  .proj-desc{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:14px;}
+  .proj-tags{display:flex;gap:6px;flex-wrap:wrap;}
+  .proj-tag{font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px;background:rgba(255,255,255,0.04);color:var(--dim);border:1px solid var(--border);}
+  .proj-card.accent-purple .proj-icon{background:var(--accent-soft);}
+  .proj-card.accent-teal   .proj-icon{background:var(--accent2-soft);}
+  .proj-card.accent-green  .proj-icon{background:var(--green-soft);}
+  .proj-card.accent-amber  .proj-icon{background:var(--amber-soft);}
+
+  /* UG folder header */
+  .ug-header{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:28px 32px;margin-bottom:32px;}
+  .ug-header-title{font-size:18px;font-weight:500;color:var(--text);margin-bottom:6px;font-family:'JetBrains Mono',monospace;}
+  .ug-header-sub{font-size:14px;color:var(--muted);}
+
+  /* Skills */
+  .skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+  .skill-group{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+  .skill-label{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
+  .skill-items{font-size:13px;color:var(--muted);line-height:1.8;}
+
+  /* Timeline */
+  .timeline{list-style:none;padding:0;}
+  .timeline-item{
+    display:grid;grid-template-columns:110px 1fr;gap:20px;
+    padding-bottom:28px;border-left:1px solid var(--border);
+    margin-left:4px;padding-left:24px;position:relative;
+  }
+  .timeline-item::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--accent);position:absolute;left:-4px;top:5px;}
+  .timeline-date{font-size:12px;color:var(--dim);font-weight:500;padding-top:2px;}
+  .tl-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px;}
+  .tl-org{font-size:13px;color:var(--accent);margin-bottom:4px;}
+  .tl-desc{font-size:13px;color:var(--muted);}
+
+  /* Contact */
+  .contact-row{display:flex;gap:12px;flex-wrap:wrap;}
+  .contact-link{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:14px;color:var(--muted);text-decoration:none;
+    padding:10px 18px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);
+    transition:color 0.18s,border-color 0.18s,background 0.18s;
+  }
+  .contact-link:hover{color:var(--text);border-color:var(--border-hover);background:var(--bg-hover);}
+  .contact-link svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+  footer{border-top:1px solid var(--border);padding:32px 0;text-align:center;font-size:13px;color:var(--dim);}
+  footer a{color:var(--dim);text-decoration:none;}
+  footer a:hover{color:var(--muted);}
+  .divider{height:1px;background:var(--border);}
+
+  @media(max-width:640px){
+    .nav-links{display:none;}
+    .hero{padding:100px 0 60px;}
+    .projects-grid{grid-template-columns:1fr;}
+    .skills-grid{grid-template-columns:1fr 1fr;}
+    .timeline-item{grid-template-columns:80px 1fr;gap:12px;}
+    .contact-row{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-name" href="#">AK</a>
+    <div class="nav-links">
+      <a href="#research">Research</a>
+      <a href="#projects">Projects</a>
+      <a href="#experience">Experience</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-label">Incoming PhD · NUS Computer Science</div>
+    <h1 class="hero-name">Aniket<br><span>Khan</span></h1>
+    <p class="hero-title">Reinforcement Learning · Computational Neuroscience · ML</p>
+    <p class="hero-bio">
+      I build computational models of decision-making — studying how brains regulate behaviour through reward learning, and translating those principles into RL algorithms and benchmarks. Previously at IIT Madras, B.Tech Mechanical Engineering with a Minor in AI &amp; Machine Learning.
+    </p>
+    <div class="hero-pills">
+      <span class="pill">Reinforcement Learning</span>
+      <span class="pill">Computational Neuroscience</span>
+      <span class="pill">Multi-Agent RL</span>
+      <span class="pill">NLP</span>
+      <span class="pill">Quantum ML</span>
+    </div>
+    <div class="hero-links">
+      <a class="hero-link primary" href="https://github.com/Heisenberg-2207" target="_blank">
+        <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        GitHub
+      </a>
+      <a class="hero-link" href="https://www.linkedin.com/in/aniket-khan-790855226" target="_blank">
+        <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        LinkedIn
+      </a>
+      <a class="hero-link" href="mailto:aniketkhan2003@gmail.com">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Email
+      </a>
+
+      <!--
+        ════════════════════════════════════════════════════════
+        SCAFFOLD — CV / Résumé
+        When ready: remove the "scaffold" class and set href to
+        the direct link of your PDF or Google Drive CV.
+        e.g. href="https://drive.google.com/file/d/YOUR_ID/view"
+        ════════════════════════════════════════════════════════
+      -->
+      <a class="hero-link scaffold" href="#" aria-disabled="true">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        CV / Résumé
+      </a>
+      <span class="scaffold-tag">↑ add link when ready</span>
+    </div>
+  </div>
+</section>
+
+<!-- PUBLICATIONS -->
+<section id="research">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">Publications</div>
+      <h2 class="section-title">Research output</h2>
+    </div>
+
+    <!-- NutriRL -->
+    <div class="pub-card">
+      <div class="pub-meta">
+        <span class="venue-badge accepted">RLC 2026 · RLJ</span>
+        <span class="pub-venue">Reinforcement Learning Conference · Reinforcement Learning Journal</span>
+      </div>
+      <div class="pub-title">NutriRL: A Benchmark for Nutritional Regulation under Delayed State Transitions</div>
+      <div class="pub-authors"><strong>Aniket Khan*</strong>, Charitha Palika* &nbsp;·&nbsp; *joint first authors</div>
+      <div class="pub-links">
+        <!--
+          SCAFFOLD — NutriRL links
+          Preprint:   set href to arXiv URL when uploaded
+          Paper:      set href to RLJ DOI / proceedings URL
+          Remove "scaffold" class from each link to activate it.
+        -->
+        <a class="pub-link scaffold" href="#" aria-disabled="true">
+          <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          arXiv preprint
+        </a>
+        <a class="pub-link scaffold" href="#" aria-disabled="true">
+          <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          RLJ paper
+        </a>
+        <a class="pub-link" href="https://github.com/Heisenberg-2207/Heisenberg-2207.github.io/tree/main/NutriRL" target="_blank">
+          <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          GitHub
+        </a>
+        <span class="pub-link-note">preprint &amp; paper links pending</span>
+      </div>
+    </div>
+
+    <!-- AD/PD -->
+    <div class="pub-card">
+      <div class="pub-meta">
+        <span class="venue-badge poster">AD/PD 2026 · Poster</span>
+        <span class="pub-venue">International Conference on Alzheimer's and Parkinson's Diseases</span>
+      </div>
+      <div class="pub-title">A Reinforcement Learning Model of Dopamine-Mediated Appetite Regulation under Healthy, Parkinsonian, and Dopaminergic Treatment Conditions</div>
+      <div class="pub-authors"><strong>Aniket Khan*</strong>, Charitha Palika* &nbsp;·&nbsp; *joint first authors</div>
+      <div class="pub-links">
+        <!--
+          SCAFFOLD — AD/PD links
+          Abstract / proceedings: set href to conference abstract URL when available.
+          Remove "scaffold" class to activate.
+        -->
+        <a class="pub-link scaffold" href="#" aria-disabled="true">
+          <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Abstract / proceedings
+        </a>
+        <a class="pub-link" href="https://github.com/Heisenberg-2207/Heisenberg-2207.github.io/tree/main/ADPD_Appetite_Regulation" target="_blank">
+          <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          GitHub
+        </a>
+        <span class="pub-link-note">proceedings link pending</span>
+      </div>
+    </div>
+
+    <!-- Ongoing -->
+    <div style="margin-top:44px;">
+      <div class="section-eyebrow" style="margin-bottom:16px;">Ongoing research</div>
+      <div class="projects-grid">
+        <div class="proj-card accent-purple" style="cursor:default;">
+          <div class="proj-icon">🧠</div>
+          <div class="proj-title">Multi-Agent RL: Brain–Gut Coordination</div>
+          <div class="proj-desc">MARL model of inter-organ coordination. A discrete brain agent decides to forage or eat; a continuous DDPG gut agent allocates nutrients post-consumption. Shared rewards model homeostatic control across the brain–gut axis.</div>
+          <div class="proj-tags"><span class="proj-tag">MARL</span><span class="proj-tag">DDPG</span><span class="proj-tag">Physiology</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- UG PROJECTS -->
+<section id="projects">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">Undergraduate Projects</div>
+      <h2 class="section-title">Built at IIT Madras</h2>
+    </div>
+
+    <div class="ug-header">
+      <div class="ug-header-title">UG_Projects/</div>
+      <div class="ug-header-sub">Coursework and independent projects spanning reinforcement learning, NLP, computer vision, quantum computing, and high-performance computing. Completed during B.Tech + Minor in AI &amp; Machine Learning at IIT Madras.</div>
+    </div>
+
+    <div class="projects-grid">
+
+      <a class="proj-card accent-purple" href="https://github.com/Heisenberg-2207/Heisenberg-2207.github.io/tree/main/UG_Projects/RL_Suite" target="_blank">
+        <div class="proj-icon">🤖</div>
+        <div class="proj-title">RL Suite</div>
+        <div class="proj-desc">Three progressive assignments: tabular Q-Learning &amp; SARSA on a custom GridWorld → Dueling DQN + REINFORCE on CartPole &amp; Acrobot → SMDP and Intra-Option RL on Taxi-v3 with learned options.</div>
+        <div class="proj-tags"><span class="proj-tag">PyTorch</span><span class="proj-tag">Gymnasium</span><span class="proj-tag">Options</span></div>
+      </a>
+
+      <a class="proj-card accent-teal" href="https://github.com/Heisenberg-2207/Heisenberg-2207.github.io/tree/main/UG_Projects/NLP_Suite" target="_blank">
+        <div class="proj-icon">📚</div>
+        <div class="proj-title">NLP Suite</div>
+        <div class="proj-desc">Four projects: modular hybrid IR system (TF-IDF → SBERT, NDCG@10=0.533 on Cranfield), DistilBERT mental-health classifier, offline RAG chatbot with FAISS, and Gemini prompt-engineering for sentiment.</div>
+        <div class="proj-tags"><span class="proj-tag">SBERT</span><span class="proj-tag">FAISS</span><span class="proj-tag">Transformers</span></div>
+      </a>
+
+      <a class="proj-card accent-green" href="https://github.com/Heisenberg-2207/Heisenberg-2207.github.io/tree/main/UG_Projects/Localisation_and_Mapping" target="_blank">
+        <div class="proj-icon">👁️</div>
+        <div class="proj-title">Wheelchair Localisation</div>
+        <div class="proj-desc">YOLOv8 trained on 500+ annotated wheelchair images for semi-autonomous docking. Position estimates within ±2 cm. BioNeX Lab UG research project under Dr. Manish Anand.</div>
+        <div class="proj-tags"><span class="proj-tag">YOLOv8</span><span class="proj-tag">OpenCV</span><span class="proj-tag">ROS</span></div>
+      </a>
+
+      <a class="proj-card accent-amber" href="https://github.com/Heisenberg-2207/Heisenberg-2207.github.io/tree/main/UG_Projects/Quantum_Error_Mitigation" target="_blank">
+        <div class="proj-icon">⚛️</div>
+        <div class="proj-title">Quantum Error Mitigation</div>
+        <div class="proj-desc">GCN, GAT, and KAN models benchmarked against Zero-Noise Extrapolation on IBM Q Brisbane (127-qubit hardware). ML models encoded noisy circuit outputs as graphs and frequency spectra, achieving up to 9× lower error than ZNE.</div>
+        <div class="proj-tags"><span class="proj-tag">Qiskit</span><span class="proj-tag">GNN</span><span class="proj-tag">IBM Q</span></div>
+      </a>
+
+      <a class="proj-card accent-purple" href="https://github.com/Heisenberg-2207/Heisenberg-2207.github.io/tree/main/UG_Projects/Parallel_DFT" target="_blank">
+        <div class="proj-icon">⚡</div>
+        <div class="proj-title">Parallel 2D DFT</div>
+        <div class="proj-desc">2D Discrete Fourier Transform implemented from scratch in C/C++ — no FFTW, no NumPy. Parallelized with OpenMP (shared memory) and MPI (distributed). Achieved over 80% efficiency with near-linear speedup.</div>
+        <div class="proj-tags"><span class="proj-tag">C/C++</span><span class="proj-tag">OpenMP</span><span class="proj-tag">MPI</span></div>
+      </a>
+
+      <a class="proj-card accent-teal" href="https://github.com/Heisenberg-2207/Heisenberg-2207.github.io/tree/main/UG_Projects/Schizophrenia_EEG" target="_blank">
+        <div class="proj-icon">🔬</div>
+        <div class="proj-title">EEG Graph Classification of Schizophrenia</div>
+        <div class="proj-desc">GCNN pipeline for schizophrenia detection from resting-state EEG. Correlation graphs built from PSD features across delta, theta, and alpha bands. Evaluated under eyes-open and eyes-closed conditions using leave-one-out cross-validation. Collaboration with Mount Sinai Hospital.</div>
+        <div class="proj-tags"><span class="proj-tag">GCNN</span><span class="proj-tag">EEG</span><span class="proj-tag">PyG</span></div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">Experience</div>
+      <h2 class="section-title">Where I've worked</h2>
+    </div>
+
+    <ul class="timeline">
+      <li class="timeline-item">
+        <div class="timeline-date">2026 →</div>
+        <div class="timeline-content">
+          <div class="tl-title">Incoming PhD — Computer Science</div>
+          <div class="tl-org">National University of Singapore (NUS)</div>
+          <div class="tl-desc">Research in reinforcement learning and computational neuroscience.</div>
+        </div>
+      </li>
+      <li class="timeline-item">
+        <div class="timeline-date">2025–2026</div>
+        <div class="timeline-content">
+          <div class="tl-title">Management Trainee (Inspection)</div>
+          <div class="tl-org">Bharat Petroleum Corporation Ltd. (BPCL) · Mumbai Refinery</div>
+          <div class="tl-desc">Equipment reliability, statutory compliance, and corrosion monitoring at a Fortune 500 refinery.</div>
+        </div>
+      </li>
+      <li class="timeline-item">
+        <div class="timeline-date">2024–2025</div>
+        <div class="timeline-content">
+          <div class="tl-title">Research Intern — Computational Neuroscience Lab</div>
+          <div class="tl-org">Dept. of Biotechnology, IIT Madras</div>
+          <div class="tl-desc">RL models of dopamine-mediated appetite regulation. Published at AD/PD 2026 and RLC 2026.</div>
+        </div>
+      </li>
+      <li class="timeline-item">
+        <div class="timeline-date">2024</div>
+        <div class="timeline-content">
+          <div class="tl-title">UG Research — BioNeX Lab</div>
+          <div class="tl-org">Dept. of Mechanical Engineering, IIT Madras · Guide: Dr. Manish Anand</div>
+          <div class="tl-desc">YOLOv8 wheelchair detection for semi-autonomous docking. Position accuracy within ±2 cm.</div>
+        </div>
+      </li>
+      <li class="timeline-item">
+        <div class="timeline-date">2024</div>
+        <div class="timeline-content">
+          <div class="tl-title">UG Research — Heat Transfer &amp; Thermal Power Lab</div>
+          <div class="tl-org">Dept. of Mechanical Engineering, IIT Madras · Guide: Dr. Chakravarthy Balaji</div>
+          <div class="tl-desc">Numerical model for nucleate boiling of dielectric fluid (Novec 649) in Ansys Fluent. Implemented the k-Ishii bubble departure diameter model and performed grid independence studies.</div>
+        </div>
+      </li>
+      <li class="timeline-item">
+        <div class="timeline-date">2023–2024</div>
+        <div class="timeline-content">
+          <div class="tl-title">RL Engineer Intern</div>
+          <div class="tl-org">Thryv Mobility</div>
+          <div class="tl-desc">PPO-based yaw stabilization on Gazebo-ROS for an inverted-pendulum smart wheelchair. Physical prototype fabrication with modular weights and custom sensor housings.</div>
+        </div>
+      </li>
+    </ul>
+
+    <div style="margin-top:48px;">
+      <div class="section-eyebrow" style="margin-bottom:20px;">Technical skills</div>
+      <div class="skills-grid">
+        <div class="skill-group">
+          <div class="skill-label">Reinforcement Learning</div>
+          <div class="skill-items">PPO · SAC · DDPG · DDQN<br>REINFORCE · AC-GAE<br>Multi-Agent RL · Options<br>Gymnasium · SB3</div>
+        </div>
+        <div class="skill-group">
+          <div class="skill-label">Deep Learning</div>
+          <div class="skill-items">PyTorch · PyG<br>Transformers · BERT<br>GCN · GAT · KAN<br>scikit-learn</div>
+        </div>
+        <div class="skill-group">
+          <div class="skill-label">NLP</div>
+          <div class="skill-items">SBERT · Word2Vec<br>TF-IDF · LSA<br>FAISS · Ollama<br>Hugging Face</div>
+        </div>
+        <div class="skill-group">
+          <div class="skill-label">Programming</div>
+          <div class="skill-items">Python · C · C++<br>MATLAB<br>OpenMP · MPI<br>Git</div>
+        </div>
+        <div class="skill-group">
+          <div class="skill-label">Robotics</div>
+          <div class="skill-items">ROS · Gazebo · RViz<br>Arduino · Simulink<br>OpenCV · YOLOv8<br>Ansys Fluent</div>
+        </div>
+        <div class="skill-group">
+          <div class="skill-label">Quantum</div>
+          <div class="skill-items">Qiskit<br>IBM Q hardware<br>ZNE · QEM<br>Quantum ML</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">Contact</div>
+      <h2 class="section-title">Get in touch</h2>
+    </div>
+    <p style="color:var(--muted);margin-bottom:28px;max-width:480px;">
+      Open to research collaborations, academic discussions, and opportunities in RL and computational neuroscience.
+    </p>
+    <div class="contact-row">
+      <a class="contact-link" href="mailto:aniketkhan2003@gmail.com">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        aniketkhan2003@gmail.com
+      </a>
+      <a class="contact-link" href="https://github.com/Heisenberg-2207" target="_blank">
+        <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        Heisenberg-2207
+      </a>
+      <a class="contact-link" href="https://www.linkedin.com/in/aniket-khan-790855226" target="_blank">
+        <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        LinkedIn
+      </a>
+    </div>
+    <p style="margin-top:24px;font-size:13px;color:var(--dim);">
+      <span style="font-family:'JetBrains Mono',monospace;">Kolkata, India</span>
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    Aniket Khan · Incoming PhD, National University of Singapore &nbsp;·&nbsp;
+    <a href="https://github.com/Heisenberg-2207/Heisenberg-2207.github.io" target="_blank">Source</a>
+  </div>
+</footer>
+
+</body>
+</html>

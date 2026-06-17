@@ -1,0 +1,30 @@
+-------------------------------------------
+            MEETING FEEDBACK
+-------------------------------------------
+
+Meet 1:
+- Use Qiskit Aer with a fake backend.
+- Generate 20-qubit data and run all ML models.
+- Consider including calibration data.
+
+Meet 2.1:
+- Avoid using FakeLima.
+- Try a 20-qubit simulation with a real backend.
+
+Meet 2.2:
+- Experiment with a CNN-based model (architecture: n_qubit × depth × one-hot gates).
+- Run simulations on an Aqua cluster.
+
+Meet 3 (Latest):
+- For 416/417 SSB: Lab location for AQUA help; contact: rekharajct@gmail.com.
+- Run on U and U† circuit, then identity.
+- Try a 10-qubit simulation in Aqua.
+- Reference: https://arxiv.org/pdf/2402.13754.
+- Include calibration data in the process.
+
+-------------------------------------------
+Next Steps:
+- Review calibration data.
+- Run ML models as needed.
+- Tune ML models as needed.
+-------------------------------------------
