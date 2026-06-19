@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://heisenberg-2207.github.io/sitemap.xml
