@@ -1,6 +1,6 @@
 # Aniket Khan — Research & Project Portfolio
 
-> Incoming PhD Candidate in Computer Science @ NUS · B.Tech + Minor in AI/ML, IIT Madras · 8.93 CGPA
+> PhD Student in Computer Science @ NUS · B.Tech + Minor in AI/ML, IIT Madras · 8.93 CGPA
 
 My work sits at the intersection of **reinforcement learning**, **computational neuroscience**, and **machine learning**. I am interested in understanding decision-making in both biological agents (the brain, the gut-brain axis) and artificial ones, and in building principled computational tools for scientific discovery.
 
