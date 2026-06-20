@@ -45,9 +45,8 @@
   }
 
   .container{max-width:900px;margin:0 auto;padding:0 24px;}
-  .container-wide{max-width:1360px;margin:0 auto;padding:0 24px;}
+  .container-wide{max-width:1200px;margin:0 auto;padding:0 24px;}
 
-  /* Nav */
   nav{
     position:fixed;top:0;left:0;right:0;z-index:100;
     background:rgba(10,10,15,0.85);
@@ -63,6 +62,16 @@
   .nav-links{display:flex;gap:28px;}
   .nav-links a{font-size:13px;color:var(--muted);text-decoration:none;transition:color 0.18s;}
   .nav-links a:hover{color:var(--text);}
+  .nav-hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;color:var(--muted);}
+  .nav-hamburger svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
+  .nav-mobile{display:none;flex-direction:column;gap:0;border-top:1px solid var(--border);}
+  .nav-mobile a{font-size:14px;color:var(--muted);text-decoration:none;padding:14px 24px;border-bottom:1px solid var(--border);transition:color 0.18s,background 0.18s;}
+  .nav-mobile a:hover{color:var(--text);background:var(--bg-hover);}
+  .nav-mobile.open{display:flex;}
+  @media(max-width:640px){
+    .nav-links{display:none;}
+    .nav-hamburger{display:flex;align-items:center;}
+  }
 
   /* Hero */
   .hero{padding:140px 0 80px;border-bottom:1px solid var(--border);}
@@ -208,58 +217,100 @@
     .contact-row{flex-direction:column;}
   }
 
-  /* ===== Capability Atlas (beside projects) ===== */
-  .aps-split{display:grid;grid-template-columns:minmax(300px,0.85fr) minmax(420px,1.15fr);gap:36px;align-items:start;margin-top:28px;}
+  /* ===== Projects + Capability Atlas ===== */
+  /* --atlas-h drives both columns so they share the same height contract */
+  :root { --atlas-h: 660px; }
 
-  .aps-cards{display:flex;flex-direction:column;gap:12px;max-height:600px;overflow-y:auto;padding-right:10px;scrollbar-width:thin;scrollbar-color:var(--border-hover) transparent;}
-  .aps-cards::-webkit-scrollbar{width:6px;}
+  .aps-split{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:28px;
+    align-items:stretch;   /* both columns same height */
+    margin-top:28px;
+  }
+
+  /* Left column: independently scrollable card list */
+  .aps-cards{
+    display:flex;flex-direction:column;gap:10px;
+    height:var(--atlas-h);
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding-right:8px;
+    scrollbar-width:thin;
+    scrollbar-color:var(--border-hover) transparent;
+  }
+  .aps-cards::-webkit-scrollbar{width:5px;}
   .aps-cards::-webkit-scrollbar-track{background:transparent;}
   .aps-cards::-webkit-scrollbar-thumb{background:var(--border-hover);border-radius:3px;}
-  .aps-cards .proj-card{margin:0;}
+  .aps-cards .proj-card{margin:0;flex-shrink:0;}
 
-  .aps-graph-col{position:sticky;top:80px;}
-  .atlas-intro{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:4px;}
-  .atlas-hint{font-size:12px;color:var(--dim);margin-bottom:16px;}
+  /* Publication mini-cards inside the scroll list */
+  .aps-pub-card{
+    background:var(--bg-card);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;
+    transition:border-color 0.18s,background 0.18s;
+    flex-shrink:0;cursor:default;
+  }
+  .aps-pub-card:hover{border-color:var(--border-hover);background:var(--bg-hover);}
+  .aps-pub-label{
+    display:inline-block;font-size:10px;font-weight:600;letter-spacing:0.07em;
+    text-transform:uppercase;padding:2px 8px;border-radius:4px;margin-bottom:8px;
+  }
+  .aps-pub-label.accepted{background:var(--green-soft);color:var(--green);border:1px solid rgba(86,207,135,0.2);}
+  .aps-pub-label.poster{background:var(--accent2-soft);color:var(--accent2);border:1px solid rgba(78,205,196,0.2);}
+  .aps-pub-title{font-size:13px;font-weight:500;color:var(--text);line-height:1.4;margin-bottom:4px;}
+  .aps-pub-venue{font-size:11px;color:var(--dim);}
+
+  .aps-section-label{
+    font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;
+    color:var(--dim);padding:10px 2px 4px;
+    border-top:1px solid var(--border);
+    flex-shrink:0;
+    margin-top:4px;
+  }
+  .aps-section-label:first-child{border-top:none;padding-top:0;margin-top:0;}
+
+  /* Right column: sticky atlas that matches left column height exactly */
+  .aps-graph-col{
+    position:sticky;
+    top:72px;
+    height:var(--atlas-h);
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .atlas-meta{font-size:12px;color:var(--dim);line-height:1.6;flex-shrink:0;}
+
+  /* Canvas wrapper — fills remaining height of .aps-graph-col so it's 100% zoom-invariant */
   .atlas-wrap{
-    position:relative;border:1px solid var(--border);border-radius:16px;
+    position:relative;
+    flex:1;              /* fill remaining column height */
+    min-height:0;        /* allow shrink in flex context */
+    border:1px solid var(--border);
+    border-radius:14px;
     background:
-      radial-gradient(ellipse 60% 45% at 50% 8%, rgba(124,110,247,0.05), transparent 60%),
-      radial-gradient(ellipse 55% 40% at 50% 92%, rgba(78,205,196,0.04), transparent 60%),
-      var(--bg);
+      radial-gradient(ellipse 55% 40% at 30% 25%, rgba(124,110,247,0.07), transparent 65%),
+      radial-gradient(ellipse 50% 40% at 70% 75%, rgba(78,205,196,0.055), transparent 65%),
+      var(--bg-card);
     overflow:hidden;
   }
-  .atlas-wrap svg{display:block;width:100%;height:auto;max-height:560px;}
-
-  .atlas-node{cursor:default;}
-  .atlas-node-halo{fill:var(--accent);opacity:0.07;transition:opacity 1.15s cubic-bezier(.25,.1,.25,1);}
-  .atlas-node-core{fill:url(#atlasNodeFill);stroke:rgba(124,110,247,0.55);stroke-width:0.75;opacity:0.32;transition:opacity 1.15s cubic-bezier(.25,.1,.25,1);}
-  .atlas-node-label{font-family:'Inter',sans-serif;font-weight:500;fill:var(--dim);opacity:0.45;letter-spacing:0.01em;transition:opacity 0.9s ease,fill 0.9s ease;}
-
-  .atlas-edge{stroke:rgba(255,255,255,0.12);stroke-width:0.75;opacity:0.28;fill:none;transition:opacity 1s ease,stroke 1s ease;}
-  .atlas-edge-pulse{stroke:var(--accent2);stroke-width:1.5;fill:none;opacity:0;stroke-dasharray:3 28;transition:opacity 0.6s ease;}
-
-  svg.active-mode .atlas-node.is-active .atlas-node-core{opacity:1;}
-  svg.active-mode .atlas-node.is-active .atlas-node-halo{opacity:0.4;}
-  svg.active-mode .atlas-node.is-active .atlas-node-label{opacity:1;fill:var(--text);}
-  svg.active-mode .atlas-node:not(.is-active) .atlas-node-core{opacity:0.1;}
-  svg.active-mode .atlas-node:not(.is-active) .atlas-node-halo{opacity:0.02;}
-  svg.active-mode .atlas-node:not(.is-active) .atlas-node-label{opacity:0.18;}
-  svg.active-mode .atlas-edge.is-active{stroke:var(--accent2);opacity:0.8;}
-  svg.active-mode .atlas-edge:not(.is-active){opacity:0.05;}
-  svg.active-mode .atlas-edge-pulse.is-active{opacity:0.9;animation:atlasPulse 2.4s linear infinite;}
-
-  @keyframes atlasPulse{to{stroke-dashoffset:-310;}}
-  .atlas-drift{animation:atlasDrift 8s ease-in-out infinite;}
-  @keyframes atlasDrift{0%,100%{transform:translate(0,0);}50%{transform:translate(0,-5px);}}
-
-  @media(prefers-reduced-motion:reduce){
-    .atlas-drift{animation:none;}
-    svg.active-mode .atlas-edge-pulse.is-active{animation:none;}
+  #atlasCanvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
   }
-  @media(max-width:980px){
+
+  @media(max-width:900px){
+    :root{ --atlas-h: auto; }
     .aps-split{grid-template-columns:1fr;}
-    .aps-cards{max-height:none;overflow-y:visible;padding-right:0;}
-    .aps-graph-col{position:static;top:auto;}
+    .aps-cards{height:auto;max-height:none;overflow-y:visible;padding-right:0;}
+    .aps-graph-col{position:static;height:auto;}
+    .atlas-wrap{height:420px;flex:none;}
+  }
+  @media(max-width:600px){
+    .atlas-wrap{height:320px;}
   }
 </style>
 </head>
@@ -274,6 +325,15 @@
       <a href="#experience">Experience</a>
       <a href="#contact">Contact</a>
     </div>
+    <button class="nav-hamburger" id="navToggle" aria-label="Open menu">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="nav-mobile" id="navMobile">
+    <a href="#research" onclick="document.getElementById('navMobile').classList.remove('open')">Research</a>
+    <a href="#projects" onclick="document.getElementById('navMobile').classList.remove('open')">Projects</a>
+    <a href="#experience" onclick="document.getElementById('navMobile').classList.remove('open')">Experience</a>
+    <a href="#contact" onclick="document.getElementById('navMobile').classList.remove('open')">Contact</a>
   </div>
 </nav>
 
@@ -402,218 +462,101 @@
 
 <div class="divider"></div>
 
-<!-- UG PROJECTS + CAPABILITY ATLAS -->
+<!-- PROJECTS + CAPABILITY ATLAS -->
 <section id="projects">
   <div class="container-wide">
     <div class="section-header">
-      <div class="section-eyebrow">Undergraduate Projects · Research Capability Atlas</div>
-      <h2 class="section-title">Built at IIT Madras, mapped to capability</h2>
+      <div class="section-eyebrow">Research &amp; Projects · Capability Atlas</div>
+      <h2 class="section-title">Work mapped to capability</h2>
     </div>
 
     <div class="ug-header">
-      <div class="ug-header-title">UG_Projects/</div>
-      <div class="ug-header-sub">Coursework and independent projects spanning reinforcement learning, NLP, computer vision, quantum computing, and high-performance computing. Hover a card to see where it sits on the capability map. Completed during B.Tech + Minor in AI &amp; Machine Learning at IIT Madras.</div>
+      <div class="ug-header-title">Research / Projects /</div>
+      <div class="ug-header-sub">Publications, ongoing research, and coursework spanning RL, NLP, computer vision, quantum computing, and HPC — all mapped to a capability graph. Hover or tap a card to illuminate its nodes.</div>
     </div>
 
     <div class="aps-split">
-      <div class="aps-cards">
+
+      <!-- LEFT: scrollable card list (independent of page scroll) -->
+      <div class="aps-cards" id="apsCards">
+
+        <div class="aps-section-label">Publications</div>
+
+        <div class="aps-pub-card" data-atlas="rl compneuro">
+          <span class="aps-pub-label accepted">RLC 2026 · RLJ</span>
+          <div class="aps-pub-title">NutriRL: A Benchmark for Nutritional Regulation under Delayed State Transitions</div>
+          <div class="aps-pub-venue">Reinforcement Learning Conference · <strong>Aniket Khan*</strong>, Charitha Palika*</div>
+        </div>
+
+        <div class="aps-pub-card" data-atlas="rl compneuro">
+          <span class="aps-pub-label poster">AD/PD 2026 · Poster</span>
+          <div class="aps-pub-title">RL Model of Dopamine-Mediated Appetite Regulation under Healthy, Parkinsonian &amp; Treatment Conditions</div>
+          <div class="aps-pub-venue">Intl. Conference on Alzheimer's &amp; Parkinson's · <strong>Aniket Khan*</strong>, Charitha Palika*</div>
+        </div>
+
+        <div class="aps-section-label">Ongoing Research</div>
+
+        <div class="proj-card accent-purple" style="cursor:default;" data-atlas="marl rl compneuro">
+          <div class="proj-icon">🧠</div>
+          <div class="proj-title">Multi-Agent RL: Brain–Gut Coordination</div>
+          <div class="proj-desc">MARL model of inter-organ coordination. A discrete brain agent decides to forage or eat; a continuous DDPG gut agent allocates nutrients. Shared rewards model homeostatic control across the brain–gut axis.</div>
+          <div class="proj-tags"><span class="proj-tag">MARL</span><span class="proj-tag">DDPG</span><span class="proj-tag">Physiology</span></div>
+        </div>
+
+        <div class="aps-section-label">UG Projects — IIT Madras</div>
 
         <a class="proj-card accent-purple" data-atlas="rl" href="https://github.com/Heisenberg-2207/Heisenberg-2207.github.io/tree/main/UG_Projects/RL_Suite" target="_blank">
           <div class="proj-icon">🤖</div>
           <div class="proj-title">RL Suite</div>
-          <div class="proj-desc">Three progressive assignments: tabular Q-Learning &amp; SARSA on a custom GridWorld → Dueling DQN + REINFORCE on CartPole &amp; Acrobot → SMDP and Intra-Option RL on Taxi-v3 with learned options.</div>
+          <div class="proj-desc">Tabular Q-Learning &amp; SARSA → Dueling DQN + REINFORCE → SMDP &amp; Intra-Option RL on Taxi-v3 with learned options.</div>
           <div class="proj-tags"><span class="proj-tag">PyTorch</span><span class="proj-tag">Gymnasium</span><span class="proj-tag">Options</span></div>
         </a>
 
         <a class="proj-card accent-teal" data-atlas="nlp dl" href="https://github.com/Heisenberg-2207/Heisenberg-2207.github.io/tree/main/UG_Projects/NLP_Suite" target="_blank">
           <div class="proj-icon">📚</div>
           <div class="proj-title">NLP Suite</div>
-          <div class="proj-desc">Four projects: modular hybrid IR system (TF-IDF → SBERT, NDCG@10=0.533 on Cranfield), DistilBERT mental-health classifier, offline RAG chatbot with FAISS, and Gemini prompt-engineering for sentiment.</div>
+          <div class="proj-desc">Hybrid IR system (TF-IDF → SBERT, NDCG@10=0.533), DistilBERT mental-health classifier, offline RAG chatbot with FAISS, Gemini prompt-engineering.</div>
           <div class="proj-tags"><span class="proj-tag">SBERT</span><span class="proj-tag">FAISS</span><span class="proj-tag">Transformers</span></div>
         </a>
 
         <a class="proj-card accent-green" data-atlas="cv robotics dl" href="https://github.com/Heisenberg-2207/Heisenberg-2207.github.io/tree/main/UG_Projects/Localisation_and_Mapping" target="_blank">
           <div class="proj-icon">👁️</div>
           <div class="proj-title">Wheelchair Localisation</div>
-          <div class="proj-desc">YOLOv8 trained on 500+ annotated wheelchair images for semi-autonomous docking. Position estimates within ±2 cm. BioNeX Lab UG research project under Dr. Manish Anand.</div>
+          <div class="proj-desc">YOLOv8 on 500+ annotated wheelchair images for semi-autonomous docking. Position accuracy ±2 cm. BioNeX Lab, Dr. Manish Anand.</div>
           <div class="proj-tags"><span class="proj-tag">YOLOv8</span><span class="proj-tag">OpenCV</span><span class="proj-tag">ROS</span></div>
         </a>
 
         <a class="proj-card accent-amber" data-atlas="quantumml gnns dl scicomp" href="https://github.com/Heisenberg-2207/Heisenberg-2207.github.io/tree/main/UG_Projects/Quantum_Error_Mitigation" target="_blank">
           <div class="proj-icon">⚛️</div>
           <div class="proj-title">Quantum Error Mitigation</div>
-          <div class="proj-desc">GCN, GAT, and KAN models benchmarked against Zero-Noise Extrapolation on IBM Q Brisbane (127-qubit hardware). ML models encoded noisy circuit outputs as graphs and frequency spectra, achieving up to 9× lower error than ZNE.</div>
+          <div class="proj-desc">GCN, GAT, KAN vs. ZNE on IBM Q Brisbane (127-qubit). ML models encoded noisy circuits as graphs — up to 9× lower error than ZNE.</div>
           <div class="proj-tags"><span class="proj-tag">Qiskit</span><span class="proj-tag">GNN</span><span class="proj-tag">IBM Q</span></div>
         </a>
 
         <a class="proj-card accent-purple" data-atlas="scicomp hpc" href="https://github.com/Heisenberg-2207/Heisenberg-2207.github.io/tree/main/UG_Projects/Parallel_DFT" target="_blank">
           <div class="proj-icon">⚡</div>
           <div class="proj-title">Parallel 2D DFT</div>
-          <div class="proj-desc">2D Discrete Fourier Transform implemented from scratch in C/C++ — no FFTW, no NumPy. Parallelized with OpenMP (shared memory) and MPI (distributed). Achieved over 80% efficiency with near-linear speedup.</div>
+          <div class="proj-desc">2D DFT from scratch in C/C++ — no FFTW, no NumPy. Parallelised with OpenMP &amp; MPI. &gt;80% efficiency, near-linear speedup.</div>
           <div class="proj-tags"><span class="proj-tag">C/C++</span><span class="proj-tag">OpenMP</span><span class="proj-tag">MPI</span></div>
         </a>
 
         <a class="proj-card accent-teal" data-atlas="gnns dl compneuro" href="https://github.com/Heisenberg-2207/Heisenberg-2207.github.io/tree/main/UG_Projects/Schizophrenia_EEG" target="_blank">
           <div class="proj-icon">🔬</div>
           <div class="proj-title">EEG Graph Classification of Schizophrenia</div>
-          <div class="proj-desc">GCNN pipeline for schizophrenia detection from resting-state EEG. Correlation graphs built from PSD features across delta, theta, and alpha bands. Evaluated under eyes-open and eyes-closed conditions using leave-one-out cross-validation. Collaboration with Mount Sinai Hospital.</div>
+          <div class="proj-desc">GCNN on resting-state EEG correlation graphs (delta, theta, alpha). Leave-one-out CV. Collaboration with Mount Sinai Hospital.</div>
           <div class="proj-tags"><span class="proj-tag">GCNN</span><span class="proj-tag">EEG</span><span class="proj-tag">PyG</span></div>
         </a>
 
       </div>
 
+      <!-- RIGHT: sticky canvas-based atlas (zoom-invariant) -->
       <div class="aps-graph-col">
-        <p class="atlas-intro">Projects are evidence; these are the capabilities they build toward.</p>
-        <p class="atlas-hint">Hover a card on the left to light up its place on the map.</p>
+        <p class="atlas-meta">Hover or tap a card to light up capabilities on the map.</p>
         <div class="atlas-wrap">
-          <svg viewBox="0 0 920 650" width="100%" height="auto" role="img" aria-label="Capability graph linking reinforcement learning, computational neuroscience, deep learning, NLP, GNNs, computer vision, robotics, scientific computing, HPC, multi-agent RL, and quantum ML">
-            <defs>
-              <radialGradient id="atlasNodeFill" cx="35%" cy="32%" r="75%">
-                <stop offset="0%" stop-color="#a89bff" stop-opacity="0.95"/>
-                <stop offset="55%" stop-color="#7c6ef7" stop-opacity="0.55"/>
-                <stop offset="100%" stop-color="#7c6ef7" stop-opacity="0.1"/>
-              </radialGradient>
-              <filter id="atlasGlowSoft" x="-120%" y="-120%" width="340%" height="340%">
-                <feGaussianBlur stdDeviation="7"/>
-              </filter>
-            </defs>
-
-            <g class="atlas-parallax-bg">
-              <circle cx="230" cy="180" r="220" fill="#7c6ef7" opacity="0.035" filter="url(#atlasGlowSoft)"/>
-              <circle cx="720" cy="480" r="240" fill="#4ecdc4" opacity="0.03" filter="url(#atlasGlowSoft)"/>
-            </g>
-
-            <g class="atlas-parallax-fg">
-              <line class="atlas-edge" data-from="compneuro" data-to="rl" x1="225" y1="95" x2="270" y2="195"/>
-              <line class="atlas-edge-pulse" data-from="compneuro" data-to="rl" x1="225" y1="95" x2="270" y2="195"/>
-
-              <line class="atlas-edge" data-from="rl" data-to="marl" x1="270" y1="195" x2="130" y2="250"/>
-              <line class="atlas-edge-pulse" data-from="rl" data-to="marl" x1="270" y1="195" x2="130" y2="250"/>
-
-              <line class="atlas-edge" data-from="rl" data-to="dl" x1="270" y1="195" x2="470" y2="300"/>
-              <line class="atlas-edge-pulse" data-from="rl" data-to="dl" x1="270" y1="195" x2="470" y2="300"/>
-
-              <line class="atlas-edge" data-from="marl" data-to="dl" x1="130" y1="250" x2="470" y2="300"/>
-              <line class="atlas-edge-pulse" data-from="marl" data-to="dl" x1="130" y1="250" x2="470" y2="300"/>
-
-              <line class="atlas-edge" data-from="dl" data-to="compneuro" x1="470" y1="300" x2="225" y2="95"/>
-              <line class="atlas-edge-pulse" data-from="dl" data-to="compneuro" x1="470" y1="300" x2="225" y2="95"/>
-
-              <line class="atlas-edge" data-from="dl" data-to="nlp" x1="470" y1="300" x2="650" y2="125"/>
-              <line class="atlas-edge-pulse" data-from="dl" data-to="nlp" x1="470" y1="300" x2="650" y2="125"/>
-
-              <line class="atlas-edge" data-from="dl" data-to="cv" x1="470" y1="300" x2="705" y2="235"/>
-              <line class="atlas-edge-pulse" data-from="dl" data-to="cv" x1="470" y1="300" x2="705" y2="235"/>
-
-              <line class="atlas-edge" data-from="dl" data-to="gnns" x1="470" y1="300" x2="645" y2="380"/>
-              <line class="atlas-edge-pulse" data-from="dl" data-to="gnns" x1="470" y1="300" x2="645" y2="380"/>
-
-              <line class="atlas-edge" data-from="cv" data-to="robotics" x1="705" y1="235" x2="855" y2="235"/>
-              <line class="atlas-edge-pulse" data-from="cv" data-to="robotics" x1="705" y1="235" x2="855" y2="235"/>
-
-              <line class="atlas-edge" data-from="gnns" data-to="scicomp" x1="645" y1="380" x2="705" y2="495"/>
-              <line class="atlas-edge-pulse" data-from="gnns" data-to="scicomp" x1="645" y1="380" x2="705" y2="495"/>
-
-              <line class="atlas-edge" data-from="scicomp" data-to="hpc" x1="705" y1="495" x2="565" y2="575"/>
-              <line class="atlas-edge-pulse" data-from="scicomp" data-to="hpc" x1="705" y1="495" x2="565" y2="575"/>
-
-              <line class="atlas-edge" data-from="scicomp" data-to="quantumml" x1="705" y1="495" x2="835" y2="555"/>
-              <line class="atlas-edge-pulse" data-from="scicomp" data-to="quantumml" x1="705" y1="495" x2="835" y2="555"/>
-
-              <g class="atlas-node atlas-drift" data-cap="compneuro" transform="translate(225,95)" style="animation-duration:8.6s;animation-delay:-1.2s;">
-                <circle class="atlas-node-halo" r="74"/>
-                <circle class="atlas-node-core" r="32"/>
-                <text class="atlas-node-label" text-anchor="middle" font-size="13">
-                  <tspan x="0" y="50">Computational</tspan>
-                  <tspan x="0" y="65">Neuroscience</tspan>
-                </text>
-              </g>
-
-              <g class="atlas-node atlas-drift" data-cap="rl" transform="translate(270,195)" style="animation-duration:7.3s;animation-delay:-3.4s;">
-                <circle class="atlas-node-halo" r="74"/>
-                <circle class="atlas-node-core" r="32"/>
-                <text class="atlas-node-label" text-anchor="middle" font-size="13">
-                  <tspan x="0" y="50">Reinforcement</tspan>
-                  <tspan x="0" y="65">Learning</tspan>
-                </text>
-              </g>
-
-              <g class="atlas-node atlas-drift" data-cap="marl" transform="translate(130,250)" style="animation-duration:9.4s;animation-delay:-0.6s;">
-                <circle class="atlas-node-halo" r="46"/>
-                <circle class="atlas-node-core" r="20"/>
-                <text class="atlas-node-label" text-anchor="middle" font-size="12">
-                  <tspan x="0" y="35">Multi-Agent RL</tspan>
-                </text>
-              </g>
-
-              <g class="atlas-node atlas-drift" data-cap="dl" transform="translate(470,300)" style="animation-duration:7.9s;animation-delay:-2.1s;">
-                <circle class="atlas-node-halo" r="78"/>
-                <circle class="atlas-node-core" r="34"/>
-                <text class="atlas-node-label" text-anchor="middle" font-size="13">
-                  <tspan x="0" y="52">Deep Learning</tspan>
-                </text>
-              </g>
-
-              <g class="atlas-node atlas-drift" data-cap="nlp" transform="translate(650,125)" style="animation-duration:8.1s;animation-delay:-4.0s;">
-                <circle class="atlas-node-halo" r="56"/>
-                <circle class="atlas-node-core" r="24"/>
-                <text class="atlas-node-label" text-anchor="middle" font-size="12">
-                  <tspan x="0" y="40">NLP</tspan>
-                </text>
-              </g>
-
-              <g class="atlas-node atlas-drift" data-cap="cv" transform="translate(705,235)" style="animation-duration:7.6s;animation-delay:-1.6s;">
-                <circle class="atlas-node-halo" r="51"/>
-                <circle class="atlas-node-core" r="22"/>
-                <text class="atlas-node-label" text-anchor="middle" font-size="12">
-                  <tspan x="0" y="38">Computer Vision</tspan>
-                </text>
-              </g>
-
-              <g class="atlas-node atlas-drift" data-cap="robotics" transform="translate(855,235)" style="animation-duration:8.8s;animation-delay:-3.9s;">
-                <circle class="atlas-node-halo" r="37"/>
-                <circle class="atlas-node-core" r="16"/>
-                <text class="atlas-node-label" text-anchor="middle" font-size="12">
-                  <tspan x="0" y="32">Robotics</tspan>
-                </text>
-              </g>
-
-              <g class="atlas-node atlas-drift" data-cap="gnns" transform="translate(645,380)" style="animation-duration:9.0s;animation-delay:-2.8s;">
-                <circle class="atlas-node-halo" r="56"/>
-                <circle class="atlas-node-core" r="24"/>
-                <text class="atlas-node-label" text-anchor="middle" font-size="12">
-                  <tspan x="0" y="40">GNNs</tspan>
-                </text>
-              </g>
-
-              <g class="atlas-node atlas-drift" data-cap="scicomp" transform="translate(705,495)" style="animation-duration:7.1s;animation-delay:-0.3s;">
-                <circle class="atlas-node-halo" r="56"/>
-                <circle class="atlas-node-core" r="24"/>
-                <text class="atlas-node-label" text-anchor="middle" font-size="12">
-                  <tspan x="0" y="40">Scientific</tspan>
-                  <tspan x="0" y="54">Computing</tspan>
-                </text>
-              </g>
-
-              <g class="atlas-node atlas-drift" data-cap="hpc" transform="translate(565,575)" style="animation-duration:9.6s;animation-delay:-2.5s;">
-                <circle class="atlas-node-halo" r="41"/>
-                <circle class="atlas-node-core" r="18"/>
-                <text class="atlas-node-label" text-anchor="middle" font-size="12">
-                  <tspan x="0" y="32">HPC</tspan>
-                </text>
-              </g>
-
-              <g class="atlas-node atlas-drift" data-cap="quantumml" transform="translate(835,555)" style="animation-duration:8.3s;animation-delay:-1.0s;">
-                <circle class="atlas-node-halo" r="41"/>
-                <circle class="atlas-node-core" r="18"/>
-                <text class="atlas-node-label" text-anchor="middle" font-size="12">
-                  <tspan x="0" y="32">Quantum ML</tspan>
-                </text>
-              </g>
-            </g>
-          </svg>
+          <canvas id="atlasCanvas" aria-label="Capability map"></canvas>
         </div>
       </div>
+
     </div>
   </div>
 </section>
@@ -751,59 +694,261 @@
 </footer>
 
 <script>
+// Hamburger menu
 (function(){
-  var atlasWrap = document.querySelector('.atlas-wrap');
-  if(!atlasWrap) return;
-  var svg = atlasWrap.querySelector('svg');
-  var nodes = svg.querySelectorAll('.atlas-node');
-  var edges = svg.querySelectorAll('.atlas-edge, .atlas-edge-pulse');
+  var toggle = document.getElementById('navToggle');
+  var mobile = document.getElementById('navMobile');
+  if(toggle && mobile){
+    toggle.addEventListener('click', function(){
+      mobile.classList.toggle('open');
+    });
+  }
+})();
+
+// ─── Canvas-based Capability Atlas ───────────────────────────────────────────
+// All coordinates are fractions [0,1] of canvas size — completely zoom-invariant.
+(function(){
+  var canvas = document.getElementById('atlasCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  // Node definitions: id, label (lines), cx/cy as fractions of canvas w/h
+  // radius as fraction of min(w,h). All positions padded 12-15% from edges
+  // so labels never clip regardless of zoom or window size.
+  var NODES = [
+    { id:'compneuro', label:['Computational','Neuroscience'], fx:0.38, fy:0.12, r:0.068, major:true  },
+    { id:'rl',        label:['Reinforcement','Learning'],     fx:0.18, fy:0.34, r:0.068, major:true  },
+    { id:'marl',      label:['Multi-Agent RL'],               fx:0.16, fy:0.62, r:0.042, major:false },
+    { id:'dl',        label:['Deep Learning'],                fx:0.50, fy:0.45, r:0.075, major:true  },
+    { id:'nlp',       label:['NLP'],                          fx:0.70, fy:0.14, r:0.050, major:false },
+    { id:'cv',        label:['Computer','Vision'],            fx:0.80, fy:0.35, r:0.050, major:false },
+    { id:'robotics',  label:['Robotics'],                     fx:0.84, fy:0.56, r:0.036, major:false },
+    { id:'gnns',      label:['GNNs'],                         fx:0.64, fy:0.62, r:0.050, major:false },
+    { id:'scicomp',   label:['Scientific','Computing'],       fx:0.70, fy:0.79, r:0.050, major:false },
+    { id:'hpc',       label:['HPC'],                          fx:0.48, fy:0.88, r:0.038, major:false },
+    { id:'quantumml', label:['Quantum ML'],                   fx:0.84, fy:0.87, r:0.038, major:false },
+  ];
+
+  var EDGES = [
+    ['compneuro','rl'],['compneuro','dl'],
+    ['rl','marl'],['rl','dl'],
+    ['marl','dl'],
+    ['dl','nlp'],['dl','cv'],['dl','gnns'],
+    ['cv','robotics'],
+    ['gnns','scicomp'],
+    ['scicomp','hpc'],['scicomp','quantumml'],
+  ];
+
+  // Node positions (runtime, in px) — recomputed on resize
+  var nodes = {};
+  NODES.forEach(function(n){ nodes[n.id] = { def:n, x:0, y:0, r:0 }; });
+
+  // Active node set
+  var activeCaps = [];
+
+  // Drift animation offsets per node
+  var driftPhase = {};
+  NODES.forEach(function(n, i){ driftPhase[n.id] = i * 0.7; });
+
+  // ── Resize handler ──────────────────────────────────────────────────────────
+  function resize(){
+    var wrap = canvas.parentElement;
+    var W = wrap.clientWidth;
+    var H = wrap.clientHeight;
+    var dpr = window.devicePixelRatio || 1;
+    // Setting width/height resets canvas state — apply scale fresh every time
+    canvas.width  = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // Map fractional positions to pixel positions
+    NODES.forEach(function(n){
+      var nd = nodes[n.id];
+      nd.x = n.fx * W;
+      nd.y = n.fy * H;
+      nd.r = n.r * Math.min(W, H);
+    });
+  }
+
+  // ── Drawing ─────────────────────────────────────────────────────────────────
+  var ACCENT      = '#7c6ef7';
+  var ACCENT2     = '#4ecdc4';
+  var DIM         = '#4a4a5a';
+  var MUTED       = '#7a7a8e';
+  var TEXT_COL    = '#e8e8f0';
+
+  var dashOffset = 0;
+  var t = 0;
+
+  function draw(){
+    var wrap = canvas.parentElement;
+    var W = wrap.clientWidth;
+    var H = wrap.clientHeight;
+    // clearRect in logical pixels (transform already applied by resize)
+    ctx.clearRect(0, 0, W, H);
+
+    var isActive = activeCaps.length > 0;
+    t += 0.012;
+
+    // ── Edges ─────────────────────────────────────────────────────────────────
+    EDGES.forEach(function(e){
+      var a = nodes[e[0]], b = nodes[e[1]];
+      if(!a || !b) return;
+      var active = isActive && activeCaps.indexOf(e[0]) !== -1 && activeCaps.indexOf(e[1]) !== -1;
+
+      // Drift offsets
+      var driftA = getDrift(e[0]);
+      var driftB = getDrift(e[1]);
+      var ax = a.x + driftA.x, ay = a.y + driftA.y;
+      var bx = b.x + driftB.x, by = b.y + driftB.y;
+
+      if(active){
+        // Glowing active edge
+        ctx.save();
+        ctx.strokeStyle = ACCENT2;
+        ctx.lineWidth   = 1.5;
+        ctx.globalAlpha = 0.85;
+        ctx.shadowColor = ACCENT2;
+        ctx.shadowBlur  = 8;
+        ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by); ctx.stroke();
+        // Animated pulse dash
+        ctx.setLineDash([4, 26]);
+        ctx.lineDashOffset = -dashOffset;
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth   = 1;
+        ctx.globalAlpha = 0.55;
+        ctx.shadowBlur  = 0;
+        ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+      } else {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255,255,255,0.10)';
+        ctx.lineWidth   = 0.8;
+        ctx.globalAlpha = isActive ? 0.05 : 0.28;
+        ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by); ctx.stroke();
+        ctx.restore();
+      }
+    });
+
+    // ── Nodes ─────────────────────────────────────────────────────────────────
+    NODES.forEach(function(n){
+      var nd = nodes[n.id];
+      var drift = getDrift(n.id);
+      var px = nd.x + drift.x, py = nd.y + drift.y;
+      var active = isActive && activeCaps.indexOf(n.id) !== -1;
+      var dim    = isActive && !active;
+      var r      = nd.r;
+
+      // Halo
+      var haloAlpha = active ? 0.35 : (dim ? 0.015 : 0.06);
+      var haloGrad = ctx.createRadialGradient(px, py, 0, px, py, r * 2.3);
+      haloGrad.addColorStop(0,   'rgba(124,110,247,' + haloAlpha + ')');
+      haloGrad.addColorStop(1,   'rgba(124,110,247,0)');
+      ctx.save();
+      ctx.fillStyle = haloGrad;
+      ctx.beginPath(); ctx.arc(px, py, r * 2.3, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+
+      // Core circle
+      var coreAlpha = active ? 1.0 : (dim ? 0.08 : 0.32);
+      var coreGrad = ctx.createRadialGradient(px - r*0.3, py - r*0.3, 0, px, py, r);
+      coreGrad.addColorStop(0,   'rgba(168,155,255,' + coreAlpha + ')');
+      coreGrad.addColorStop(0.55,'rgba(124,110,247,' + (coreAlpha*0.6) + ')');
+      coreGrad.addColorStop(1,   'rgba(124,110,247,0)');
+      ctx.save();
+      if(active){
+        ctx.shadowColor = ACCENT;
+        ctx.shadowBlur  = 18;
+      }
+      ctx.fillStyle = coreGrad;
+      ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI*2); ctx.fill();
+      // Stroke ring
+      ctx.strokeStyle = active ? 'rgba(124,110,247,0.8)' : 'rgba(124,110,247,0.3)';
+      ctx.lineWidth   = active ? 1.2 : 0.6;
+      ctx.globalAlpha = coreAlpha;
+      ctx.stroke();
+      ctx.restore();
+
+      // Label — clamp font size based on actual canvas logical size
+      var labelAlpha = active ? 1.0 : (dim ? 0.14 : 0.45);
+      ctx.save();
+      ctx.globalAlpha = labelAlpha;
+      ctx.fillStyle   = active ? TEXT_COL : (active ? TEXT_COL : '#6a6a7e');
+      ctx.textAlign   = 'center';
+      ctx.textBaseline= 'top';
+      var fontSize = Math.max(9, Math.min(12, r * 0.48));
+      ctx.font = '500 ' + fontSize + 'px Inter, -apple-system, sans-serif';
+      var lines = n.def.label;
+      var lineH = fontSize * 1.35;
+      var startY = py + r + 4;
+      lines.forEach(function(line, li){
+        ctx.fillText(line, px, startY + li * lineH);
+      });
+      ctx.restore();
+    });
+
+    // Advance dash animation
+    if(!reduceMotion) dashOffset += 0.6;
+  }
+
+  function getDrift(id){
+    if(reduceMotion) return {x:0, y:0};
+    var phase = driftPhase[id] || 0;
+    var wrap  = canvas.parentElement;
+    var amp   = Math.min(wrap.clientWidth, wrap.clientHeight) * 0.012;
+    return {
+      x: Math.sin(t + phase) * amp * 0.6,
+      y: Math.cos(t * 0.7 + phase) * amp
+    };
+  }
+
+  // ── Card hover / tap wiring ──────────────────────────────────────────────────
   var triggers = document.querySelectorAll('[data-atlas]');
-  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var tappedEl = null;
 
-  function activate(caps){
-    svg.classList.add('active-mode');
-    nodes.forEach(function(n){
-      n.classList.toggle('is-active', caps.indexOf(n.getAttribute('data-cap')) !== -1);
-    });
-    edges.forEach(function(e){
-      var a = e.getAttribute('data-from'), b = e.getAttribute('data-to');
-      e.classList.toggle('is-active', caps.indexOf(a) !== -1 && caps.indexOf(b) !== -1);
-    });
+  function setActive(caps){
+    activeCaps = caps;
   }
-  function deactivate(){
-    svg.classList.remove('active-mode');
-    nodes.forEach(function(n){ n.classList.remove('is-active'); });
-    edges.forEach(function(e){ e.classList.remove('is-active'); });
+  function clearActive(){
+    activeCaps = [];
   }
 
-  triggers.forEach(function(t){
-    var caps = (t.getAttribute('data-atlas') || '').split(' ').filter(Boolean);
+  triggers.forEach(function(el){
+    var caps = (el.getAttribute('data-atlas') || '').split(' ').filter(Boolean);
     if(!caps.length) return;
-    t.addEventListener('mouseenter', function(){ activate(caps); });
-    t.addEventListener('mouseleave', deactivate);
-    t.addEventListener('focus', function(){ activate(caps); });
-    t.addEventListener('blur', deactivate);
+
+    el.addEventListener('mouseenter', function(){ setActive(caps); });
+    el.addEventListener('mouseleave', function(){
+      if(tappedEl !== el) clearActive();
+    });
+    el.addEventListener('focus',      function(){ setActive(caps); });
+    el.addEventListener('blur',       function(){
+      if(tappedEl !== el) clearActive();
+    });
+
+    // Touch / click toggle for mobile
+    el.addEventListener('click', function(e){
+      if(tappedEl === el){
+        tappedEl = null; clearActive();
+      } else {
+        tappedEl = el; setActive(caps);
+      }
+    });
   });
 
-  if(!reduceMotion){
-    var bg = svg.querySelector('.atlas-parallax-bg');
-    var fg = svg.querySelector('.atlas-parallax-fg');
-    var tx = 0, ty = 0, cx = 0, cy = 0;
-    atlasWrap.addEventListener('mousemove', function(e){
-      var rect = atlasWrap.getBoundingClientRect();
-      var px = (e.clientX - rect.left) / rect.width - 0.5;
-      var py = (e.clientY - rect.top) / rect.height - 0.5;
-      tx = px * 14; ty = py * 10;
-    });
-    atlasWrap.addEventListener('mouseleave', function(){ tx = 0; ty = 0; });
-    (function loop(){
-      cx += (tx - cx) * 0.06;
-      cy += (ty - cy) * 0.06;
-      if(fg) fg.style.transform = 'translate(' + cx.toFixed(2) + 'px,' + cy.toFixed(2) + 'px)';
-      if(bg) bg.style.transform = 'translate(' + (cx * 0.35).toFixed(2) + 'px,' + (cy * 0.35).toFixed(2) + 'px)';
-      requestAnimationFrame(loop);
-    })();
+  // ── RAF loop ─────────────────────────────────────────────────────────────────
+  function loop(){
+    draw();
+    requestAnimationFrame(loop);
   }
+
+  // ── Init ─────────────────────────────────────────────────────────────────────
+  resize();
+  var ro = new ResizeObserver(function(){ resize(); });
+  ro.observe(canvas.parentElement);
+  loop();
+
 })();
 </script>
 
