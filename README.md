@@ -19,6 +19,7 @@ portfolio/
     ├── NLP_Suite/                ← Four NLP projects (IR, BERT, RAG, Gemini)
     ├── Localisation_and_Mapping/ ← YOLOv8 wheelchair detection (BioNeX Lab)
     ├── Quantum_Error_Mitigation/ ← GNN/KAN-based QEM on IBM Q hardware
+    ├── Schizophrenia_EEG/        ← GCNN classification on resting-state EEG (Mount Sinai collab)
     └── Parallel_DFT/             ← 2D DFT via OpenMP + MPI from scratch
 ```
 
@@ -36,7 +37,7 @@ portfolio/
 ## Research Projects (Published / Ongoing)
 
 ### [`NutriRL/`](./NutriRL/README.md)
-A Gym-compatible RL benchmark for food-choice decision making under **delayed physiological feedback**. Evaluates PPO, DDQN, SAC, GRU-PPO under controlled delay regimes. Models nutrient absorption with Gaussian-kernel dynamics and irreversible accumulation. *RLC 2026, to appear in RLJ.*
+A Gym-compatible RL benchmark for food-choice decision making under **delayed physiological feedback**. Evaluates PPO, DDQN, SAC, and MC (REINFORCE-style) agents under controlled delay regimes, with a GRU-based recurrent policy variant (GRU-PPO) also implemented. Models nutrient absorption with Gaussian-kernel dynamics and irreversible accumulation. *RLC 2026, to appear in RLJ.*
 
 ### [`ADPD_Appetite_Regulation/`](./ADPD_Appetite_Regulation/README.md)
 A cortico-basal ganglia RL model of appetite regulation. Dopamine is mapped to TD-error signals; the model reproduces clinical dietary patterns across healthy, Parkinsonian, and medicated states. *AD/PD 2026 poster.*
@@ -55,6 +56,7 @@ Quick links:
 | [NLP Suite](./UG_Projects/NLP_Suite/README.md) | BERT, FAISS, SBERT | IR, mental-health classification, RAG chatbot |
 | [Localisation & Mapping](./UG_Projects/Localisation_and_Mapping/README.md) | YOLOv8, OpenCV | Wheelchair detection & docking (±2 cm) |
 | [Quantum Error Mitigation](./UG_Projects/Quantum_Error_Mitigation/README.md) | Qiskit, PyG | GNN/KAN vs ZNE on IBM Brisbane |
+| [Schizophrenia EEG](./UG_Projects/Schizophrenia_EEG/README.md) | Keras GCN, MNE | GCNN classification on resting-state EEG (Mount Sinai collab) |
 | [Parallel DFT](./UG_Projects/Parallel_DFT/README.md) | C/C++, OpenMP, MPI | 2D DFT from scratch, >80 % efficiency |
 
 ---

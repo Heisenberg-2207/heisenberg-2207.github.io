@@ -37,3 +37,5 @@ Features: experience replay buffer, target network, epsilon-greedy decay.
 - Dueling DQN solved CartPole-v1 in ~200 episodes (baseline: ~350)
 - REINFORCE-with-baseline reduced gradient variance by ~40% vs. without
 - Acrobot: DDQN converged ~2× faster than REINFORCE across seeds
+
+> The full assignment write-up and results walkthrough are in `PA2.pdf`.

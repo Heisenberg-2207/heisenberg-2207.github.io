@@ -14,7 +14,7 @@ This project asks: **can a trained ML model mitigate noise with a single circuit
 
 ```
 Quantum_Error_Mitigation/
-├── AQUA/                       ← Main simulator-based pipeline
+├── AQUA/                       ← Main simulator-based pipeline (cluster-deployable)
 │   ├── main.ipynb              ← Primary experiment notebook
 │   ├── converter.py            ← Circuit → graph/frequency/CNN encoding
 │   ├── extractor.py            ← Feature extraction
@@ -26,9 +26,12 @@ Quantum_Error_Mitigation/
 │   ├── gnn_predictor.ipynb     ← GNN model on hardware data
 │   └── ibm_brisbane_calibrations_*.csv
 ├── pipeline/src/
-│   ├── DATA_GEN/               ← Synthetic data generation
-│   └── QEM/                    ← ML models (GCN, GAT, KAN)
+│   ├── DATA_GEN/               ← Refactored/modularized synthetic data generation
+│   └── QEM/                    ← ML models (GCN, MLP, CNN, Transformer, classical ML) + training/eval
+├── research_papers/            ← Reference papers (QEM, RL-QEC) consulted for this project
 ├── results/                    ← Figures (ANN, CNN, KAN, XGB, RF results)
+├── updates/                    ← Meeting notes and presentation decks
+├── main.py                     ← Top-level entry script
 └── demo2.pdf                   ← Full project report
 ```
 

@@ -38,3 +38,5 @@ Each option is a tuple `(I, π, β)`:
 - Intra-Option Q-Learning with pseudo-rewards converged in ~60% of the steps needed by flat Q-Learning
 - Temporal abstraction allowed the agent to plan at multiple timescales simultaneously
 - Pseudo-reward design was the critical factor: poorly shaped rewards led to premature option termination
+
+> The full assignment write-up and results walkthrough are in `PA3.pdf`.

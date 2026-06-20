@@ -45,7 +45,11 @@ The repository includes several RL agents for comparison, including:
 - PPO
 - DDQN
 - SAC
-- AC-GAE
+- MC (Monte Carlo / REINFORCE-style policy gradient)
+
+A GRU-based recurrent shared actor-critic network (`SharedActorCriticGRU` in `models/model.py`) is also implemented, enabling a GRU-PPO variant for partially-observable settings.
+
+> **Note on naming:** the `ac_gae.py` agent module and the `run_ac_gae_all.ipynb` notebook are historically named after an early Actor-Critic-with-GAE design, but the agent class they currently contain and run is `MCAgent` (Monte Carlo / REINFORCE). Treat references to "AC-GAE" in filenames as referring to the MC agent.
 
 ### Models
 The neural network architectures used by the agents are implemented for policy and value learning.

@@ -42,7 +42,6 @@ RL_Suite/
 **Algorithms implemented:**
 - Dueling Deep Q-Network (DDQN) with experience replay
 - REINFORCE (Monte Carlo policy gradient) — with and without baseline
-- Actor-Critic with Generalized Advantage Estimation (AC-GAE)
 
 **Key design choices:**
 - Separate value and advantage streams in Dueling DQN architecture

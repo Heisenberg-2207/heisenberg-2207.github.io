@@ -41,10 +41,10 @@ Localisation_and_Mapping/
 
 Training:
 ```
-Epochs: 270
+Epochs: 25
 Batch size: 16
 Image size: 640×640
-Optimizer: AdamW
+Optimizer: auto (Ultralytics default selection)
 ```
 
 ### Distance Estimation
@@ -67,9 +67,11 @@ Detection output feeds into a semi-autonomous wheelchair controller:
 
 | Metric | Value |
 |---|---|
-| mAP@0.5 | 86% |
+| mAP@0.5 | 83.1% |
 | Position uncertainty | ±2 cm |
 | Inference speed | ~25 FPS (laptop GPU) |
+
+Despite the relatively small training set, the model generalizes well across most common wheelchair types, not just the ones represented in training.
 
 ## Technologies
 

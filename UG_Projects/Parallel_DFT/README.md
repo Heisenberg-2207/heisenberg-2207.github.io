@@ -12,7 +12,8 @@ Parallel_DFT/
 ├── MPI.cpp                 ← MPI implementation
 ├── helper.ipynb            ← Analysis and plotting notebook
 ├── MPI_result.csv          ← MPI benchmark results
-├── OMP_signal.csv          ← OpenMP benchmark results
+├── MPI_signal.csv          ← N×N random signal array consumed by MPI.cpp (N divisible by nprocs)
+├── OMP_signal.csv          ← Grayscale image signal consumed by OMP.cpp
 ├── Result.png              ← Speedup and efficiency plots
 ├── sample_image.jpg        ← Test image for 2D DFT
 └── ID5130_project.pdf      ← Full report
@@ -41,6 +42,15 @@ For a 2D image of size M×N, the naive DFT is O(M²N²) — impractically slow f
 - Each process computes its assigned rows independently
 - `MPI_Gather` collects results at root
 - Works across multiple nodes (tested on IIT Madras cluster)
+
+## Data Generation
+
+`helper.ipynb` prepares the inputs for both implementations and visualizes results:
+- For OpenMP: converts `sample_image.jpg` to grayscale and exports it as `OMP_signal.csv`
+- For MPI: generates an N×N array of random values (0–255), with N divisible by the number of processes, exported as `MPI_signal.csv`
+- Also includes cells for verifying the conversion and visualizing signals/results
+
+Each benchmark configuration (`OMP.cpp` and `MPI.cpp`) was run 10 times; results were averaged and the values recorded in `helper.ipynb` for the plots below.
 
 ## Results
 

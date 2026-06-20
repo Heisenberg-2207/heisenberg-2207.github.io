@@ -30,3 +30,5 @@ The key difference: Q-Learning learns the greedy policy regardless of what it ac
 - Q-Learning found the optimal policy ~15% faster under deterministic transitions
 - Softmax exploration outperformed ε-greedy when reward differences were small
 - Bayesian search identified optimal `α ≈ 0.3`, `γ ≈ 0.95` for this environment
+
+> Full derivations, hyperparameter tables, and extended results are documented in `Report.pdf`.

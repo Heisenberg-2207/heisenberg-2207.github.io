@@ -16,6 +16,7 @@ IR_System/
 │   ├── main.py                 ← Entry point
 │   ├── informationRetrieval.py ← Retrieval models (TF-IDF, LSA, SBERT)
 │   ├── evaluation.py           ← Precision, Recall, MAP, NDCG
+│   ├── sentenceSegmentation.py ← Sentence segmentation
 │   ├── tokenization.py         ← Tokenizer
 │   ├── stopwordRemoval.py      ← Stopword filtering
 │   ├── inflectionReduction.py  ← Stemming/lemmatization
@@ -23,6 +24,7 @@ IR_System/
 │   ├── spellcheck.py           ← Edit-distance spell correction
 │   ├── word2vec.py             ← Word2Vec embeddings
 │   ├── word2vec.npy            ← Pretrained Word2Vec vectors
+│   ├── util.py                 ← Shared helper functions
 │   ├── llm based/              ← SBERT and cross-encoder variants
 │   ├── ablation study/         ← Dimension vs. accuracy analysis
 │   ├── cranfield/              ← Dataset (docs, queries, qrels)
