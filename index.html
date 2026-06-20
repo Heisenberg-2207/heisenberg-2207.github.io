@@ -505,6 +505,28 @@
 
         <div class="aps-section-label">UG Projects — IIT Madras</div>
 
+        <!--
+          ════════════════════════════════════════════════════════════════════
+          TO ADD A NEW PROJECT: copy this template, fill it in, and paste it
+          anywhere in this list (order here = order shown on the page).
+
+          <a class="proj-card accent-purple" data-atlas="rl dl" href="YOUR_LINK" target="_blank">
+            <div class="proj-icon">🤖</div>
+            <div class="proj-title">Project Title</div>
+            <div class="proj-desc">One or two sentence description of what it does and why it matters.</div>
+            <div class="proj-tags"><span class="proj-tag">Tech1</span><span class="proj-tag">Tech2</span></div>
+          </a>
+
+          Notes:
+          - data-atlas: space-separated capability ids (see NODES in the
+            <script> below) — these light up on the map on hover/tap.
+          - accent-*: purple | teal | green | amber (cycle through these,
+            or add a new .proj-card.accent-X rule in <style> for more).
+          - If no link yet, use <div class="proj-card ..." style="cursor:default;">
+            instead of <a ...> (see the "Ongoing Research" card above for example).
+          ════════════════════════════════════════════════════════════════════
+        -->
+
         <a class="proj-card accent-purple" data-atlas="rl" href="https://github.com/Heisenberg-2207/Heisenberg-2207.github.io/tree/main/UG_Projects/RL_Suite" target="_blank">
           <div class="proj-icon">🤖</div>
           <div class="proj-title">RL Suite</div>
@@ -716,6 +738,17 @@
   // Node definitions: id, label (lines), cx/cy as fractions of canvas w/h
   // radius as fraction of min(w,h). All positions padded 12-15% from edges
   // so labels never clip regardless of zoom or window size.
+  //
+  // ════════════════════════════════════════════════════════════════════════
+  // TO ADD A NEW CAPABILITY NODE (e.g. a new research area):
+  //   1. Add an entry below with a unique `id` (lowercase, no spaces —
+  //      this id is what project cards reference via data-atlas="id").
+  //   2. Pick fx/fy (0–1 fractions of the canvas) for its position, keeping
+  //      roughly 0.12–0.15 padding from edges so the label never clips.
+  //   3. Optionally add an EDGES pair below to connect it to a related node.
+  //   4. That's it — no other code changes needed. Project cards reference
+  //      this id directly (see "TO ADD A NEW PROJECT" further down).
+  // ════════════════════════════════════════════════════════════════════════
   var NODES = [
     { id:'compneuro', label:['Computational','Neuroscience'], fx:0.38, fy:0.12, r:0.068, major:true  },
     { id:'rl',        label:['Reinforcement','Learning'],     fx:0.18, fy:0.34, r:0.068, major:true  },
@@ -728,6 +761,7 @@
     { id:'scicomp',   label:['Scientific','Computing'],       fx:0.70, fy:0.79, r:0.050, major:false },
     { id:'hpc',       label:['HPC'],                          fx:0.48, fy:0.88, r:0.038, major:false },
     { id:'quantumml', label:['Quantum ML'],                   fx:0.84, fy:0.87, r:0.038, major:false },
+    // { id:'newarea', label:['New','Area'], fx:0.55, fy:0.65, r:0.045, major:false },
   ];
 
   var EDGES = [
@@ -738,6 +772,7 @@
     ['cv','robotics'],
     ['gnns','scicomp'],
     ['scicomp','hpc'],['scicomp','quantumml'],
+    // ['newarea','dl'],
   ];
 
   // Node positions (runtime, in px) — recomputed on resize
@@ -879,7 +914,7 @@
       ctx.textBaseline= 'top';
       var fontSize = Math.max(9, Math.min(12, r * 0.48));
       ctx.font = '500 ' + fontSize + 'px Inter, -apple-system, sans-serif';
-      var lines = n.def.label;
+      var lines = n.label;
       var lineH = fontSize * 1.35;
       var startY = py + r + 4;
       lines.forEach(function(line, li){
@@ -938,8 +973,19 @@
   });
 
   // ── RAF loop ─────────────────────────────────────────────────────────────────
+  // draw() is wrapped in try/catch so that a future bug in one node/edge can't
+  // throw inside the rAF callback and silently freeze the entire canvas forever
+  // (requestAnimationFrame never reschedules itself after an uncaught throw).
+  var loggedDrawError = false;
   function loop(){
-    draw();
+    try{
+      draw();
+    } catch(err){
+      if(!loggedDrawError){
+        console.error('Capability atlas draw() error:', err);
+        loggedDrawError = true;
+      }
+    }
     requestAnimationFrame(loop);
   }
 
