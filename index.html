@@ -312,9 +312,28 @@
   @media(max-width:600px){
     .atlas-wrap{height:320px;}
   }
+
+  /* ===== Background energy field (decorative only, sits behind everything) ===== */
+  #bgFieldCanvas{
+    position:fixed;
+    top:0;left:0;right:0;bottom:0;
+    width:100vw;height:100vh;
+    z-index:0;
+    pointer-events:none;
+    display:block;
+  }
+  /* All real page content lives in here, positioned above the bg canvas */
+  #pageContent{
+    position:relative;
+    z-index:1;
+  }
 </style>
 </head>
 <body>
+
+<canvas id="bgFieldCanvas" aria-hidden="true"></canvas>
+
+<div id="pageContent">
 
 <nav>
   <div class="nav-inner">
@@ -719,6 +738,8 @@
   </div>
 </footer>
 
+</div><!-- /#pageContent -->
+
 <script>
 // Hamburger menu
 (function(){
@@ -999,6 +1020,442 @@
   ro.observe(canvas.parentElement);
   loop();
 
+})();
+</script>
+
+<script>
+// ─── Background energy field ─────────────────────────────────────────────────
+// Decorative-only: fixed full-viewport canvas behind #pageContent (z-index:0
+// vs 1). pointer-events:none, never intercepts clicks/scroll/selection.
+// Mouse pushes nearby orbs around; faint constellation lines link close
+// orbs; occasional "energy bolts" spawn off-screen, chain through a few
+// nearby orbs (lighting them briefly), then exit the opposite side.
+(function(){
+  var canvas = document.getElementById('bgFieldCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  var ACCENT_RGB  = [124,110,247]; // purple
+  var ACCENT2_RGB = [78,205,196];  // teal
+  var BOLT_RGB    = [200,235,232]; // bright teal-white, the "electricity"
+
+  // ── Energy field config — tweak these to change the look/feel ─────────────
+  var CONFIG = {
+    ORB_COUNT: 40,         // how many orbs populate the field
+    ORB_MIN_R: 2,          // smallest orb radius, px
+    ORB_MAX_R: 4.6,        // largest orb radius, px
+    LINK_DIST: 130,        // max distance for faint constellation lines between orbs, px
+    MOUSE_RADIUS: 130,     // distance at which orbs get pushed away from the cursor, px
+    BOLT_MIN_DELAY: 5000,  // shortest gap between energy bursts, ms
+    BOLT_MAX_DELAY: 11000, // longest gap between energy bursts, ms
+    BOLT_MIN_HOPS: 3,      // fewest orbs a spark chains through (including its start orb)
+    BOLT_MAX_HOPS: 6,      // most orbs a spark chains through (including its start orb)
+    BOLT_MAX_JUMP: 240     // farthest a spark can jump to reach its next orb, px
+  };
+
+  var W = 0, H = 0, DPR = 1;
+  var orbs = [];
+
+  var mouseX = -9999, mouseY = -9999, mouseActive = false;
+
+  function rand(min, max){ return min + Math.random() * (max - min); }
+
+  function resize(){
+    DPR = window.devicePixelRatio || 1;
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width  = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    layoutOrbs();
+  }
+
+  function layoutOrbs(){
+    var prevCount = orbs.length;
+    if(prevCount === 0){
+      for(var i = 0; i < CONFIG.ORB_COUNT; i++){
+        var bx = rand(0, W), by = rand(0, H);
+        orbs.push({
+          bx: bx, by: by,
+          x: bx, y: by,
+          vx: 0, vy: 0,
+          r: rand(CONFIG.ORB_MIN_R, CONFIG.ORB_MAX_R),
+          hue: Math.random() < 0.62 ? 'p' : 't',
+          phase: rand(0, Math.PI * 2),
+          driftAmp: rand(7, 18),
+          flash: 0 // 0..1 energy boost from a passing bolt
+        });
+      }
+    } else {
+      // Re-map existing orbs proportionally to the new viewport size
+      var prevW = window.__bgFieldPrevW || W;
+      var prevH = window.__bgFieldPrevH || H;
+      orbs.forEach(function(o){
+        var fx = o.bx / prevW, fy = o.by / prevH;
+        o.bx = fx * W; o.by = fy * H;
+        o.x  = o.bx; o.y = o.by;
+      });
+    }
+    window.__bgFieldPrevW = W;
+    window.__bgFieldPrevH = H;
+  }
+
+  // ── Mouse / touch tracking (window-level so pointer-events:none is fine) ────
+  window.addEventListener('mousemove', function(e){
+    mouseX = e.clientX; mouseY = e.clientY; mouseActive = true;
+  }, {passive:true});
+  window.addEventListener('mouseleave', function(){ mouseActive = false; });
+  window.addEventListener('touchmove', function(e){
+    if(e.touches && e.touches[0]){
+      mouseX = e.touches[0].clientX; mouseY = e.touches[0].clientY; mouseActive = true;
+    }
+  }, {passive:true});
+  window.addEventListener('touchend', function(){ mouseActive = false; });
+
+  // ── Energy bolts ────────────────────────────────────────────────────────────
+  var bolts = [];
+  var BOLT_SPEED = 780; // px/sec along the jagged path
+
+  function jaggedPoints(p1, p2, segments, jitter){
+    var pts = [];
+    var dx = p2.x - p1.x, dy = p2.y - p1.y;
+    var len = Math.sqrt(dx*dx + dy*dy) || 1;
+    var nx = -dy / len, ny = dx / len; // unit normal
+    for(var i = 1; i <= segments; i++){
+      var t = i / segments;
+      var px = p1.x + dx * t;
+      var py = p1.y + dy * t;
+      if(i < segments){
+        var off = rand(-jitter, jitter) * Math.sin(t * Math.PI); // taper jitter at ends
+        px += nx * off; py += ny * off;
+      }
+      pts.push({x:px, y:py});
+    }
+    return pts;
+  }
+
+  // ── Spatial grid index over orbs, for fast nearby-orb queries ───────────────
+  // Rebuilt right before each spark spawns (orbs drift continuously, so a
+  // stale grid could miss orbs that wandered into a cell). Lookups during hop
+  // selection then only touch the handful of cells inside the jump radius
+  // instead of scanning every orb, so this stays fast as ORB_COUNT grows.
+  var GRID_CELL = CONFIG.BOLT_MAX_JUMP;
+  var orbGrid = {};
+
+  function buildOrbGrid(){
+    orbGrid = {};
+    for(var i = 0; i < orbs.length; i++){
+      var o = orbs[i];
+      var key = Math.floor(o.x / GRID_CELL) + '_' + Math.floor(o.y / GRID_CELL);
+      (orbGrid[key] || (orbGrid[key] = [])).push(i);
+    }
+  }
+
+  function orbsNear(point, radius){
+    var out = [];
+    var minCx = Math.floor((point.x - radius) / GRID_CELL);
+    var maxCx = Math.floor((point.x + radius) / GRID_CELL);
+    var minCy = Math.floor((point.y - radius) / GRID_CELL);
+    var maxCy = Math.floor((point.y + radius) / GRID_CELL);
+    for(var cx = minCx; cx <= maxCx; cx++){
+      for(var cy = minCy; cy <= maxCy; cy++){
+        var bucket = orbGrid[cx + '_' + cy];
+        if(bucket) out = out.concat(bucket);
+      }
+    }
+    return out;
+  }
+
+  // Weighted-random pick of the next orb in a spark's chain. Candidates come
+  // from the grid (not a full scan), and closer orbs get somewhat more
+  // weight while farther ones stay genuinely reachable — balanced exploration
+  // rather than always snapping to the single literal-closest orb.
+  var HOP_WEIGHT_POWER = 1.3;
+  function pickNextOrb(from, visited, maxDist){
+    var candidates = orbsNear(from, maxDist);
+    var pool = [], totalW = 0;
+    for(var i = 0; i < candidates.length; i++){
+      var idx = candidates[i];
+      if(visited.indexOf(idx) !== -1) continue;
+      var o = orbs[idx];
+      var dx = o.x - from.x, dy = o.y - from.y;
+      var d = Math.sqrt(dx*dx + dy*dy);
+      if(d <= 0 || d >= maxDist) continue;
+      var closeness = 1 - d / maxDist; // 0..1, 1 = right on top of it
+      var w = Math.pow(closeness, HOP_WEIGHT_POWER) + 0.15; // floor keeps farther orbs possible
+      pool.push({idx: idx, w: w});
+      totalW += w;
+    }
+    if(pool.length === 0) return null;
+    var r = Math.random() * totalW;
+    for(var j = 0; j < pool.length; j++){
+      r -= pool[j].w;
+      if(r <= 0) return pool[j].idx;
+    }
+    return pool[pool.length - 1].idx;
+  }
+
+  function spawnBolt(){
+    if(orbs.length < 2) return;
+    buildOrbGrid();
+
+    // A spark lives strictly inside the orb network: it starts on a random
+    // orb and only ever travels orb-to-orb, never through open space.
+    var startIdx = Math.floor(rand(0, orbs.length));
+    var visited = [startIdx];
+    var hopIdx = [startIdx];
+    var waypoints = [{x: orbs[startIdx].x, y: orbs[startIdx].y}];
+    var cur = orbs[startIdx];
+
+    var chainLen = Math.round(rand(CONFIG.BOLT_MIN_HOPS, CONFIG.BOLT_MAX_HOPS));
+    var maxJump = CONFIG.BOLT_MAX_JUMP;
+    for(var h = 0; h < chainLen - 1; h++){
+      var idx = pickNextOrb(cur, visited, maxJump);
+      if(idx === null) break; // no unvisited orb in range — chain ends here
+      visited.push(idx);
+      hopIdx.push(idx);
+      cur = orbs[idx];
+      waypoints.push({x: cur.x, y: cur.y});
+    }
+    if(waypoints.length < 2) return; // this orb is isolated right now — skip, try again next cycle
+
+    // Build a jagged polyline across all waypoint segments
+    var poly = [waypoints[0]];
+    for(var i = 0; i < waypoints.length - 1; i++){
+      var segLen = Math.sqrt(
+        Math.pow(waypoints[i+1].x - waypoints[i].x, 2) +
+        Math.pow(waypoints[i+1].y - waypoints[i].y, 2)
+      );
+      var segCount = Math.max(2, Math.round(segLen / 28));
+      var jit = Math.min(14, segLen * 0.06);
+      var pts = jaggedPoints(waypoints[i], waypoints[i+1], segCount, jit);
+      poly = poly.concat(pts);
+    }
+
+    // Cumulative length table for progress lookup
+    var cum = [0];
+    for(var j = 1; j < poly.length; j++){
+      var dseg = Math.sqrt(
+        Math.pow(poly[j].x - poly[j-1].x, 2) +
+        Math.pow(poly[j].y - poly[j-1].y, 2)
+      );
+      cum.push(cum[j-1] + dseg);
+    }
+
+    // Map each visited orb to its cumulative distance along poly, so the
+    // flash fires exactly as the head reaches that orb (including the start).
+    var wpPolyIdx = [0];
+    var acc = 0;
+    for(var k = 0; k < waypoints.length - 1; k++){
+      var segLen2 = Math.sqrt(
+        Math.pow(waypoints[k+1].x - waypoints[k].x, 2) +
+        Math.pow(waypoints[k+1].y - waypoints[k].y, 2)
+      );
+      var segCount2 = Math.max(2, Math.round(segLen2 / 28));
+      acc += segCount2;
+      wpPolyIdx.push(acc);
+    }
+    var hopCum = [];
+    for(var m = 0; m < hopIdx.length; m++){
+      hopCum.push(cum[wpPolyIdx[m]]);
+    }
+
+    bolts.push({
+      poly: poly, cum: cum, total: cum[cum.length-1],
+      hopIdx: hopIdx, hopCum: hopCum,
+      traveled: 0
+    });
+  }
+
+  function scheduleNextBolt(){
+    var delay = rand(CONFIG.BOLT_MIN_DELAY, CONFIG.BOLT_MAX_DELAY); // rare, calm cadence
+    setTimeout(function(){
+      if(!reduceMotion) spawnBolt();
+      scheduleNextBolt();
+    }, delay);
+  }
+
+  function pointAtDistance(bolt, dist){
+    var cum = bolt.cum, poly = bolt.poly;
+    if(dist <= 0) return poly[0];
+    if(dist >= bolt.total) return poly[poly.length-1];
+    for(var i = 1; i < cum.length; i++){
+      if(cum[i] >= dist){
+        var t = (dist - cum[i-1]) / (cum[i] - cum[i-1] || 1);
+        var p0 = poly[i-1], p1 = poly[i];
+        return { x: p0.x + (p1.x-p0.x)*t, y: p0.y + (p1.y-p0.y)*t };
+      }
+    }
+    return poly[poly.length-1];
+  }
+
+  function drawBolt(bolt){
+    var headD = bolt.traveled;
+    var tailD = Math.max(0, headD - 150); // trailing glow length
+
+    // Trigger orb flashes as the head passes each hop point
+    bolt.hopIdx.forEach(function(oi, i){
+      var hd = bolt.hopCum[i];
+      if(Math.abs(headD - hd) < 22){
+        var o = orbs[oi];
+        if(o) o.flash = 1;
+      }
+    });
+
+    // Build the trail's point list between tailD and headD
+    var cum = bolt.cum, poly = bolt.poly;
+    var pts = [pointAtDistance(bolt, tailD)];
+    for(var i = 0; i < cum.length; i++){
+      if(cum[i] > tailD && cum[i] < headD) pts.push(poly[i]);
+    }
+    pts.push(pointAtDistance(bolt, headD));
+    if(pts.length < 2) return;
+
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    // Soft glow pass
+    ctx.shadowColor = 'rgba(' + BOLT_RGB.join(',') + ',0.9)';
+    ctx.shadowBlur = 10;
+    ctx.strokeStyle = 'rgba(' + ACCENT2_RGB.join(',') + ',0.35)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for(var k = 1; k < pts.length; k++) ctx.lineTo(pts[k].x, pts[k].y);
+    ctx.stroke();
+
+    // Bright core pass, fading along the trail
+    ctx.shadowBlur = 0;
+    for(var s = 1; s < pts.length; s++){
+      var a = s / pts.length;
+      ctx.strokeStyle = 'rgba(' + BOLT_RGB.join(',') + ',' + (0.15 + a*0.75) + ')';
+      ctx.lineWidth = 1.1;
+      ctx.beginPath();
+      ctx.moveTo(pts[s-1].x, pts[s-1].y);
+      ctx.lineTo(pts[s].x, pts[s].y);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // ── Physics + drawing ────────────────────────────────────────────────────────
+  var SPRING_K = 0.004;
+  var DAMPING = 0.90;
+  var DRIFT_SPEED = 0.4;
+  var REPEL_STRENGTH = 0.9;
+
+  var t = 0;
+  var lastTs = null;
+
+  function updateOrbs(){
+    orbs.forEach(function(o){
+      if(!reduceMotion){
+        var driftX = Math.sin(t * DRIFT_SPEED + o.phase) * o.driftAmp * 0.4;
+        var driftY = Math.cos(t * DRIFT_SPEED * 0.8 + o.phase) * o.driftAmp;
+        var targetX = o.bx + driftX;
+        var targetY = o.by + driftY;
+
+        var ax = (targetX - o.x) * SPRING_K;
+        var ay = (targetY - o.y) * SPRING_K;
+
+        if(mouseActive){
+          var dx = o.x - mouseX, dy = o.y - mouseY;
+          var dist = Math.sqrt(dx*dx + dy*dy) || 0.001;
+          if(dist < CONFIG.MOUSE_RADIUS){
+            var force = (1 - dist / CONFIG.MOUSE_RADIUS) * REPEL_STRENGTH;
+            ax += (dx / dist) * force;
+            ay += (dy / dist) * force;
+          }
+        }
+
+        o.vx = (o.vx + ax) * DAMPING;
+        o.vy = (o.vy + ay) * DAMPING;
+        o.x += o.vx;
+        o.y += o.vy;
+      }
+      if(o.flash > 0) o.flash = Math.max(0, o.flash - 0.045);
+    });
+  }
+
+  function drawLinks(){
+    for(var i = 0; i < orbs.length; i++){
+      for(var j = i + 1; j < orbs.length; j++){
+        var a = orbs[i], b = orbs[j];
+        var dx = a.x - b.x, dy = a.y - b.y;
+        var d = Math.sqrt(dx*dx + dy*dy);
+        if(d < CONFIG.LINK_DIST){
+          var alpha = (1 - d / CONFIG.LINK_DIST) * 0.10;
+          ctx.strokeStyle = 'rgba(' + ACCENT_RGB.join(',') + ',' + alpha + ')';
+          ctx.lineWidth = 0.6;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  function drawOrbs(){
+    orbs.forEach(function(o){
+      var rgb = o.hue === 'p' ? ACCENT_RGB : ACCENT2_RGB;
+      var boost = o.flash;
+      var glowAlpha = 0.09 + boost * 0.5;
+      var coreAlpha = 0.5 + boost * 0.5;
+      var rGlow = o.r * (3 + boost * 3);
+
+      var grad = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, rGlow);
+      grad.addColorStop(0, 'rgba(' + rgb.join(',') + ',' + glowAlpha + ')');
+      grad.addColorStop(1, 'rgba(' + rgb.join(',') + ',0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(o.x, o.y, rGlow, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = 'rgba(' + rgb.join(',') + ',' + coreAlpha + ')';
+      ctx.beginPath();
+      ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+
+  function draw(ts){
+    if(lastTs === null) lastTs = ts;
+    var dt = Math.min(48, ts - lastTs); // ms, clamp for tab-switch hiccups
+    lastTs = ts;
+    t += 0.012;
+
+    ctx.clearRect(0, 0, W, H);
+
+    updateOrbs();
+    drawLinks();
+    drawOrbs();
+
+    if(!reduceMotion){
+      for(var i = bolts.length - 1; i >= 0; i--){
+        var bolt = bolts[i];
+        bolt.traveled += BOLT_SPEED * (dt / 1000);
+        drawBolt(bolt);
+        if(bolt.traveled >= bolt.total + 150) bolts.splice(i, 1);
+      }
+    }
+  }
+
+  var loggedErr = false;
+  function loop(ts){
+    try{ draw(ts); }
+    catch(err){
+      if(!loggedErr){ console.error('Background energy field draw() error:', err); loggedErr = true; }
+    }
+    requestAnimationFrame(loop);
+  }
+
+  resize();
+  window.addEventListener('resize', resize, {passive:true});
+  if(!reduceMotion) scheduleNextBolt();
+  requestAnimationFrame(loop);
 })();
 </script>
 
